@@ -15,7 +15,7 @@ namespace Negocio
         public AccesoDatos()
         {
          
-            string cadenaConexion = "server=localhost; database=impresoras; user id=root; password=amarazul77";
+            string cadenaConexion = "server=localhost; database=impresoras; user id=root; password=";
             conexion = new MySqlConnection(cadenaConexion);
             comando = new MySqlCommand();
         }
