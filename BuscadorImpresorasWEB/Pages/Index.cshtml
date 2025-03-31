@@ -1,0 +1,187 @@
+﻿@page
+@model BuscadorImpresorasWeb.Pages.PrintersModel
+
+@{
+	ViewData["Title"] = "Lista de Impresoras";
+}
+<meta http-equiv="refresh" content="30"> <!-- Refresca cada segundos -->
+
+<div class="container">
+	<form method="get" class="row g-3">
+
+		<div class="col-md-3">
+		<label for="UbicacionFilter">Ubicación:</label>
+			<select class="form-control" asp-for="UbicacionFilter">
+				<option value="0">Todas</option>
+				@foreach (var ubicacion in Model.Ubicaciones)
+				{
+					<option value="@ubicacion.Id">@ubicacion.Nombre</option>
+				}
+				</select>
+		</div>
+
+		<div class="col-md-3">
+			<label class="form-label">Modelo:</label>
+			<input type="text" class="form-control" asp-for="ModelFilter" />
+		</div>
+		<div class="col-md-3">
+			<label class="form-label">Sector:</label>
+			<input type="text" class="form-control" asp-for="LocationFilter" />
+		</div>
+		<div class="col-md-3">
+			<label class="form-label">IP:</label>
+			<input type="text" class="form-control" asp-for="IpFilter" />
+		</div>
+		<div class="col-md-3 d-flex align-items-end">
+			<button type="submit" class="btn btn-primary">Filtrar</button>
+		</div>
+	</form>
+
+	<table class="table table-bordered table-sm table-responsive text-nowrap w-100 text-start" style="font-size: 12px">
+		<thead class="table-dark">
+			<tr>
+				<th>Modelo</th>
+				<th>IP</th>
+				<th>Ubicación</th>
+				<th>Host</th>
+				<th>Serial</th>
+				<th>Cont. Páginas</th>
+				<th>Toner Negro</th>
+				<th>Toner Cian</th>
+				<th>Toner Magenta</th>
+				<th>Toner Amarillo</th>
+				<th>Waste Container</th>
+				<th>Un. de Imagen</th>
+				<th>Ping</th>
+
+
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var printer in Model.Printers)
+			{
+				string GetRowColor(int blackToner, int? cyanToner, int? magentaToner, int? yellowToner, string serial)
+				{
+   
+					if (serial == "N/A")
+						return "table-secondary";
+
+ 
+					bool isCritical = blackToner <= 10 ||
+									  (cyanToner != -1 && cyanToner <= 10) ||
+									  (magentaToner != -1 && magentaToner <= 10) ||
+									  (yellowToner != -1 && yellowToner <= 10);
+
+					bool isWarning = blackToner <= 50 ||
+									 (cyanToner != -1 && cyanToner <= 50) ||
+									 (magentaToner != -1 && magentaToner <= 50) ||
+									 (yellowToner != -1 && yellowToner <= 50);
+
+   
+					if (isCritical)
+						return "table-danger";
+  
+					else if (isWarning)
+						return "table-warning";
+    
+					else
+						return "table-success";
+				}
+				string GetPingClass(string pingResponded) =>
+				pingResponded== "Online" ? "bg-success" : "bg-danger";
+
+				<tr class="@GetRowColor(printer.blackToner, printer.cyanToner, printer.magentaToner, printer.yellowToner, printer.serial)">
+					<td>@printer.Model</td>
+					<td><a href="http://@printer.ip" target="_blank">@printer.ip</a></td>
+					<td>@printer.ubi</td>
+					<td>@printer.mac</td>
+					<td>@printer.serial</td>
+					<td>@printer.pageCount</td>
+					<td>
+						<div class="progress" style="height: 20px; width: 100px;">
+							<div class="progress-bar bg-dark" role="progressbar" style="width: @printer.blackToner%;" aria-valuenow="@printer.blackToner" aria-valuemin="0" aria-valuemax="100">@printer.blackToner%</div>
+						</div>
+					</td>
+					<td>
+						@if (printer.cyanToner >= 0)
+						{
+							<div class="progress" style="height: 20px; width: 100px;">
+								<div class="progress-bar bg-info" role="progressbar" style="width: @printer.cyanToner%;"
+									 aria-valuenow="@printer.cyanToner" aria-valuemin="0" aria-valuemax="100">
+									@printer.cyanToner%
+								</div>
+							</div>
+						}
+						else
+						{
+							<span class="text-muted">N/A</span>
+						}
+					</td>
+					<td>
+						@if (printer.magentaToner >= 0)
+						{
+							<div class="progress" style="height: 20px; width: 100px;">
+								<div class="progress-bar bg-danger" role="progressbar" style="width: @printer.magentaToner%;"
+									 aria-valuenow="@printer.magentaToner" aria-valuemin="0" aria-valuemax="100">
+									@printer.magentaToner%
+								</div>
+							</div>
+						}
+						else
+						{
+							<span class="text-muted">N/A</span>
+						}
+					</td>
+					<td>
+						@if (printer.yellowToner >= 0)
+						{
+							<div class="progress" style="height: 20px; width: 100px;">
+								<div class="progress-bar bg-warning" role="progressbar" style="width: @printer.yellowToner%;"
+									 aria-valuenow="@printer.yellowToner" aria-valuemin="0" aria-valuemax="100">
+									@printer.yellowToner%
+								</div>
+							</div>
+						}
+						else
+						{
+							<span class="text-muted">N/A</span>
+						}
+					</td>
+					<td>
+						@if (printer.wasteContainer > 0)
+						{
+							<div class="alert alert-success p-1 m-0 text-center">OK</div>
+						}
+						@if (printer.wasteContainer == 0)
+						{
+							<div class="alert alert-danger p-1 m-0 text-center fw-bold">Reemplazar</div>
+						}
+						@if (printer.wasteContainer == -1)
+						{
+							<span class="text-muted">N/A</span>
+						}
+					</td>
+					<td>
+						@if (printer.unitImage >= 0)
+						{
+							<div class="progress" style="height: 20px; width: 100px;">
+								<div class="progress-bar bg-success" role="progressbar" style="width: @printer.unitImage%;"
+									 aria-valuenow="@printer.unitImage%" aria-valuemin="0" aria-valuemax="100">
+									@printer.unitImage%
+								</div>
+							</div>
+						}
+						else
+						{
+							<span class="text-muted">N/A</span>
+						}
+					</td>
+
+					 <td>
+							<span class="badge @GetPingClass(printer.status)">•</span>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
