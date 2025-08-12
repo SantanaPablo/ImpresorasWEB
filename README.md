@@ -1,4 +1,9 @@
-ImpresorasWEB
-Monitor de impresoras con ASP.NET Core
+# ImpresorasWEB
 
-Aplicación web que permite monitorear el estado y los valores de las impresoras de red a través de consultas con OIDs, utilizando una base de datos MySQL.
+Aplicación web que muestra el estado y valores de impresoras mediante consultas con OIDS a través de SNMP.
+
+## 🚀 Tecnologías
+- ASP.NET Core
+- MySQL
+- Bootstrap
+- SNMP (OIDs)
